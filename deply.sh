@@ -1,0 +1,1 @@
+ ssh -i "tt.pem" ubuntu@ec2-3-12-226-63.us-east-2.compute.amazonaws.com

@@ -1,0 +1,21 @@
+import { Router } from "express";
+import isAdmin from "../middleware/isAdmin";
+import isLoged from "../middleware/islogedin";
+import login from "./Auth/login";
+import getCar from "./Car/get";
+import history from "./history";
+import User from "./User";
+import app from "./api/index";
+import getpoints from "./history/point";
+import isActive from "./history/active";
+import location from "./User/location";
+const api = Router();
+api.use("/user", isAdmin, User);
+api.use("/history", history);
+api.use("/points", getpoints);
+api.use("/active", isActive);
+api.use("/external", app);
+api.post("/auth", login);
+api.put("/location", location);
+
+export default api;

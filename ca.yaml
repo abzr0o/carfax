@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cars
+spec:
+  ports:
+    - port: 80
+      targetPort: 5000
+  selector:
+    app: car
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: car
+spec:
+  selector:
+    matchLabels:
+      app: car
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: car
+    spec:
+      containers:
+        - name: car
+          image: registry.digitalocean.com/carfax/car:v38
+          resources:
+            requests:
+              cpu: 80m
+          env:
+            - name: DATABASE_URL
+              value: "mongodb+srv://mohammed:QWsazxc12E@cluster0.khawjdd.mongodb.net/test?retryWrites=true&w=majority"
+          ports:
+            - containerPort: 5000
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: car
+spec:
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Pods
+          value: 4
+          periodSeconds: 60
+        - type: Percent
+          value: 70
+          periodSeconds: 60
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: car
+  minReplicas: 1
+  maxReplicas: 15
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
